@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <h1>Login</h1>
+    <div class="col-4">
+        <form id="login_form" action="/user/login" method="post">
+            <label for="exampleInputTitle">Username</label>
+            <input type="text" name ="inputUsername" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter you'r username" required>
+
+            <label for="exampleInputTitle">Password</label>
+            <input type="password" name ="inputPassword" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter you'r password" required>
+
+            <button form="login_form" type="submit" class="btn btn-primary mt-4">Login</button>
+        </form>
+    </div>
+{% endblock %}

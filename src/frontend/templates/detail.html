@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+{% block content %}
+    <button type="button" class="btn btn-primary mb-3" onclick="location.href='/'">Back</button>
+    <h1>Name: {{medicine.name}}</h1>
+    <p>Description: <br> {{ medicine.description }}</p>
+    <p>Substances: 
+        {%for substance in substances%} 
+            <li> 
+                {{ substance.name }}
+            </li> 
+        {% endfor %}
+    </p>
+{% endblock %}

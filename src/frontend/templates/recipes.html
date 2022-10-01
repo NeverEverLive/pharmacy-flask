@@ -1,0 +1,98 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4">My recipes</h1>
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Upload new recipe
+  </button>
+
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+          onclick="window.location.href='/'">Back</button>
+
+  <form method="POST" action="/backroll", enctype="multipart/form-data">
+    <input type="text" name ="InputCount" class="form-control mb-15" style="position:absolute; width: 13%; top:135px; right: 120px;" id="InputCount" placeholder="Enter backroll rows">
+    <button type="submit" class="btn btn-primary" style="position:absolute; top:135px; right: 30px;">Backroll</button>
+  </form>
+
+  {% if success_uploaded %}
+      <p class="mt-4" style="color:green">Success uploaded</p>
+  {% endif %}
+
+  {% if seccess_backroll %}
+      <p class="mt-4" style="color:green">Success backroll</p>
+  {% endif %}
+
+  {% if success_delete %}
+      <h4 class="mt-4" style="color:red">Success delete</h4>
+  {% endif %}
+
+  <table class="table table-hover mt-4">
+      <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Doctor</th>
+            <th scope="col">Medicine</th>
+            <th scope="col">Electronic signature</th>
+            <th style="width: 150px" scope="col">Date</th>
+            <th scope="col">Delete</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+            <tr>
+              <th>{{row.recipe.id}}</th>
+              <td>{{row.doctor.first_name}} {{row.doctor.last_name}}</td>
+              <td>{{row.medicine.name}}</td>
+              <td>{{row.recipe.electronic_signature}}</td>
+              <td>{{row.recipe.created_on}}</td>
+              <td style="width: 90px">
+                  <button type="button" class="btn btn-danger" onclick="location.href='/delete_game/{{row.recipe.id}}'">Delete</button>
+              </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Upload recipe</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <form method="POST" action="/create_recipe", enctype="multipart/form-data">
+
+            <label for="exampleSelectDoctor">Select doctor</label>
+            <select required class="form-control mb-3" name="selectDoctor" aria-label="Select doctor">
+              <option value="">Select doctor</option>
+              {% for doctor in doctors%}
+                <option value="{{doctor.id}}">{{doctor.first_name}} {{doctor.last_name}}</option>
+              {% endfor %}
+            </select>
+
+            <label for="exampleInputTitle">Select medicine</label>
+            <select class="form-control mb-3" name="selectMedicine" aria-label="Select medicine">
+              <option selected>Select medicine</option>
+              {% for medicine in medicines%}
+                  <option value="{{medicine.id}}">{{medicine.name}}</option>
+              {% endfor %}
+            </select>
+
+            <label for="exampleInputElectronicSignature">Electronic signature</label>
+            <textarea name ="inputElectronicSignature" class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Enter electronic signature"></textarea>
+
+            <label for="exampleInputDate">Date</label>
+            <input type="date" name ="inputDate" class="form-control mb-3" id="exampleInputDate" placeholder="Enter date" required>
+
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+          </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+    
+
+{% endblock %}

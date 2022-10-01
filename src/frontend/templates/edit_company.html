@@ -1,0 +1,76 @@
+{% extends 'index.html' %}
+{% block content %}
+    <h1 class="mt-4">Admin panel</h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+      Create new company
+    </button>
+    
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+          onclick="window.location.href='/edit'">Back</button>
+
+  {% if success_update %}
+    <p class="mt-4" style="color:green">Success update</p>
+  {% endif %}
+
+  {% if success_delete %}
+    <h4 class="mt-4" style="color:red">Success delete</h4>
+  {% endif %}
+
+  {% if success %}
+    <p class="mt-4" style="color:green">Record added</p>
+  {% endif %}
+
+  <table class="table table-hover mt-4">
+      <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Update</th>
+            <th scope="col">Delete</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for company in companies %}
+            <tr>
+              <th>{{company.id}}</th>
+              <td>{{company.name}}</td>
+              <td>{{company.description}}</td>
+              <td style="width: 90px">
+                  <button type="button" class="btn btn-primary"  onclick="location.href='/update_company/{{company.id}}'">Update</button>
+              </td>
+              <td style="width: 90px">
+                  <button type="button" class="btn btn-danger" onclick="location.href='/delete_company/{{company.id}}'">Delete</button>
+              </td>
+            </tr>
+        {% endfor %}
+      </tbody>
+  </table>
+
+    <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create company</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="/create_company", enctype="multipart/form-data">
+
+            <label for="exampleInputTitle">Company title</label>
+            <input type="text" name ="inputTitle" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter title" required>
+
+            <label for="exampleInputDescription">Description</label>
+            <textarea name ="inputDescription" class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description"></textarea>
+
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+          </form>
+      </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

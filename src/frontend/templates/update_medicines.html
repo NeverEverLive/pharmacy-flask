@@ -1,0 +1,33 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4 mb-4">Update {{data.medicine.name}} medicine</h1>
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+        onclick="window.location.href='/edit_game'">Back</button>
+        
+  <form method="POST" action="/submit_medicine", enctype="multipart/form-data">
+    <label for="exampleGameId">Medicine id</label>
+    <input type="text" name ="MedicineId" class="form-control mb-3 w-50" id="exampleGameId" value="{{data.medicine.id}}" readonly>
+
+    <label for="exampleInputTitle">Medicine name</label>
+    <input type="text" name ="inputTitle" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter title" value="{{data.medicine.name}}">
+
+    <label for="exampleInputDescription">Description</label>
+    <textarea name ="inputDescription" class="form-control mb-3 w-50" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description">{{data.medicine.description}}</textarea>
+
+    <label for="exampleSelectSubstance">Select substances</label>
+    <br>
+    <select required multiple class="form-select mb-3" name="selectSubstance" aria-label="Select substance">
+      {% for substance in data.substances %}
+        <option selected value="{{substance.id}}">{{substance.name}}</option>
+      {% endfor %}
+      {% for substance in substances%}
+        {% if substance not in data.substances %}
+          <option value="{{substance.id}}">{{substance.name}}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <br>
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+  
+{% endblock %}

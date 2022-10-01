@@ -1,0 +1,20 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4 mb-4">Update {{company.title}} company</h1>
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+        onclick="window.location.href='/edit_game'">Back</button>
+        
+  <form method="POST" action="/submit_company", enctype="multipart/form-data">
+    <label for="exampleCompanyId">Company id</label>
+    <input type="text" name ="companyId" class="form-control mb-3 w-50" id="examplecompanyId" value="{{company.id}}" readonly>
+
+    <label for="exampleInputTitle">Company title</label>
+    <input type="text" name ="inputTitle" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter title" value="{{company.name}}">
+
+    <label for="exampleInputDescription">Description</label>
+    <textarea name ="inputDescription" class="form-control mb-3 w-50" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description">{{company.description}}</textarea>
+
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+  
+{% endblock %}

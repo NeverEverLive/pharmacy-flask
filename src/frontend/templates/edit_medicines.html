@@ -1,0 +1,103 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4">Admin panel</h1>
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Create new medicine
+  </button>
+
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+          onclick="window.location.href='/edit'">Back</button>
+
+  <form method="POST" action="/backroll", enctype="multipart/form-data">
+    <input type="text" name ="InputCount" class="form-control mb-15" style="position:absolute; width: 13%; top:135px; right: 120px;" id="InputCount" placeholder="Enter backroll rows">
+    <button type="submit" class="btn btn-primary" style="position:absolute; top:135px; right: 30px;">Backroll</button>
+  </form>
+
+  {% if success_update %}
+      <p class="mt-4" style="color:green">Success update</p>
+  {% endif %}
+
+  {% if seccess_backroll %}
+      <p class="mt-4" style="color:green">Success backroll</p>
+  {% endif %}
+
+  {% if success_delete %}
+      <h4 class="mt-4" style="color:red">Success delete</h4>
+  {% endif %}
+
+  {% if success %}
+      <p class="mt-4" style="color:green">Record added</p>
+  {% endif %}
+
+  <table class="table table-hover mt-4">
+      <thead>
+          <tr>
+            <th style="width: 100px" scope="col">id</th>
+            <th scope="col">Name</th>
+            <th style="width: 400px" scope="col">Description</th>
+            <th scope="col">Substances</th>
+            <th scope="col">Update</th>
+            <th scope="col">Delete</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+            <tr>
+              <th>{{row.medicine.id}}</th>
+              <td>{{row.medicine.name}}</td>
+              <td>{{row.medicine.description}}</td>
+              <td>
+                {% for substance in row.substances%}
+                  <li>{{substance.name}}</li>
+                {% endfor %}
+              </td>
+              <td style="width: 90px">
+                  <button type="button" class="btn btn-primary" onclick="location.href='/update_medicine/{{row.medicine.id}}'">Update</button>
+              </td>
+              <td style="width: 90px">
+                  <button type="button" class="btn btn-danger" onclick="location.href='/delete_medicine/{{row.medicine.id}}'">Delete</button>
+              </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create game</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <form method="POST" action="/create_medicine_", enctype="multipart/form-data">
+
+            <label for="exampleInputTitle">Medicine name</label>
+            <input type="text" name ="inputTitle" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter name" required>
+
+            <label for="exampleInputDescription">Description</label>
+            <textarea name ="inputDescription" class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description"></textarea>
+
+            <label for="exampleSelectSubstance">Select substances</label>
+            <br>
+            <select required multiple class="form-select mb-3" name="selectSubstance" aria-label="Select substance">
+              {% for substance in substances%}
+                <option value="{{substance.id}}">{{substance.name}}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+          </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    
+
+{% endblock %}
