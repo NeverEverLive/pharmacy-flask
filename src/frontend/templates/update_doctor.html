@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4 mb-4">Update {{doctor.first_name}} {{doctor.last_name}} doctor</h1>
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+        onclick="window.location.href='/edit_doctor'">Back</button>
+        
+  <form method="POST" action="/submit_doctor", enctype="multipart/form-data">
+    <label for="exampleDoctorId">Doctor id</label>
+    <input type="text" name ="doctorId" class="form-control mb-3 w-50" id="exampleDoctorId" value="{{doctor.id}}" readonly>
+
+    <label for="exampleInputTitle">Doctor first name</label>
+    <input type="text" name ="inputFirstName" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter first name" value="{{doctor.first_name}}">
+
+    <label for="exampleInputTitle">Doctor last name</label>
+    <input type="text" name ="inputLastName" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter last name" value="{{doctor.last_name}}">
+
+    <label for="exampleInputTitle">Doctor hospital</label>
+    <input type="text" name ="inputHospital" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter hospital" value="{{doctor.hospital}}">
+
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+  
+{% endblock %}

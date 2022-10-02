@@ -1,13 +1,17 @@
 import datetime
+import uuid
 from uuid import uuid4
 
-from sqlalchemy import Column, func, PrimaryKeyConstraint, ForeignKeyConstraint
+from sqlalchemy import Column, func, PrimaryKeyConstraint, ForeignKeyConstraint, event, DDL
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.types import String, DateTime
 from marshmallow import Schema, fields
+from pydantic import Field, BaseModel as BaseSchema
 
-from src.models.base_model import BaseModel
+from src.models.base_model import BaseModel, get_session
+from src.models.role import Role
+from src.schemas.user import UserSchema
 
 
 class User(BaseModel):
@@ -55,6 +59,38 @@ class LoginUserSchema(Schema):
 
 
 class CreateUpdateUserSchema(Schema):
-    id = fields.UUID()
+    id = fields.UUID(default=uuid4())
     username = fields.String()
     hash_password = fields.String()
+    role_id = fields.UUID(defaut=uuid4())
+
+
+class SaveUserSchema(BaseSchema):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    username: str
+    role_id: uuid.UUID
+
+    class Config:
+        orm_mode = True
+
+# def create_admin():
+#     """DDL при создании таблицы добавляет пользователя admin"""
+#     admin_user = {
+#         # "id": uuid.uuid4(),
+#         "username": "admin",
+#         "password": "123"
+#     }
+    
+#     # with get_session() as session:
+#     #     role_id = session.query(Role).first()
+    
+#     serializing_data = UserSchema.parse_obj(admin_user)
+#     return DDL(f"""INSERT INTO "user"(id, username, hash_password)
+#                 VALUES
+#                 ('{serializing_data.id}', '{serializing_data.username}', '{serializing_data.hash_password}')
+#                 ON CONFLICT DO NOTHING""")
+
+# event.listen(
+#     User.__table__, 'after_create',
+#     create_admin()
+# )

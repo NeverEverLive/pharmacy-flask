@@ -1,158 +1,146 @@
-from uuid import UUID, uuid4
 import logging
-from typing import Dict, Union
 
 import bcrypt
-from sqlalchemy import inspect
 
-from src.models.user import User, CreateUpdateUserSchema
+from src.models.base_model import get_session
+from src.models.user import User
 from src.operators.jwt_token import decode_jwt_token, encode_jwt_token
+from src.schemas.response import ResponseSchema
+from src.schemas.user import UserSecureSchema, UsersSecureSchema
 
 
-def create_user(data: Dict[str, str]) -> Dict[str, str]:
-    """Создать пользователя
+def create_user(user) -> ResponseSchema:
+    """
+        Создать пользователя
         Входные параметры:
-        :params data: Данные пользователя
+        :params user: Данные пользователя
 
         Исходящие данные:
-        :params output_data: Словарь с результатами
-    """
-    data['id'] = uuid4()
-    data['hash_password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-
-    serializer = CreateUpdateUserSchema()
-    data = serializer.dump(data)
-
-    logging.warning(data)
-
-    new_user = User().fill(**data)
-    new_user.save()
-
-    output_data = {
-        'success': True,
-        'message': 'User created',
-        "user": {
-            "id": data["id"],
-            "username": data["username"]
-        }
-    }
-
-    return output_data
-
-
-def update_user(data: Dict[str, str], token: str) -> Dict[str, Union[str, bool]]:
-    """Изменить пользователя
-        Входные параметры:
-        :params data: Данные пользователя
-        :params token: JWT токен
-
-        Исходящие данные:
-        :params output_data: Словарь с результатами
+        Словарь с результатами создания пользователя
     """
 
-    if data.get('password'):
-        data['hash_password'] = bcrypt.hashpw(data.get('password').encode('utf-8'), bcrypt.gensalt())
+    user_state = User().fill(**user.dict())
 
-    serializer = CreateUpdateUserSchema()
-    data = serializer.dump(data)
+    with get_session() as session:
+        session.add(user_state)
+        session.commit()
 
-
-    id = decode_jwt_token(token)
-    if id is None:
-        raise KeyError("'id' is required argument to update")
-
-    user_to_update = User.get_by_id(id)
-
-    mapper = inspect(User)
-    attrs = [column.key for column in mapper.attrs]
+        return ResponseSchema(
+            data=UserSecureSchema.from_orm(user),
+            success=True
+        )
 
 
-    for attr, value in data.items():
-        if attr in attrs:
-            setattr(user_to_update, attr, value)
-    
-    user_to_update.save()
-
-    output_data = {
-        'success': True,
-        'message': 'User updated'
-    }
-
-    logging.debug(f"out {output_data}")
-
-    return output_data
-
-
-def delete_user(token: str) -> Dict[str, Union[str, bool]]:
-    """Удалить пользователя
-        Входные параметры:
-        :params token: JWT токен
-
-        Исходящие данные:
-        :params output_data: Словарь с результатами
-    """
-    id = decode_jwt_token(token)
-    if id is None:
-        raise KeyError("'id' is required argument to update")
-
-    user_to_delete = User.get_by_id(id)
-    user_to_delete.delete()
-
-    output_data = {
-        'success': True,
-        'message': 'User deleted'
-    }
-
-    return output_data 
-
-
-def get_user(id: UUID) -> Dict[str, Union[str, bool, Dict[str, str]]]:
+def get_all_users() -> ResponseSchema:
     """Вернуть пользователя
-        
+
         Входные параметры:
         :params data: Данные пользователя
 
         Исходящие параметры:
         :params data: Словарь с результатами
     """
-    user = User.get_by_id(id)
-    data = {
-        'success': True,
-        'user': {
-            "id": user.id,
-            "username": user.username,
-            "created_on": user.created_on
-        }
-    }
-    return data
+    with get_session() as session:
+        user_state = session.query(User).order_by(User.created_on.desc()).all()
+
+        data = UsersSecureSchema.from_orm(user_state).dict(by_alias=True)["data"]
+
+        logging.warning(data)
+
+        return ResponseSchema(
+            data=data,
+            success=True
+        )
 
 
-def login_user(data: Dict[str, str]) -> Dict[str, Union[str, bool, Dict[str, str]]]:
-    """Авторизировать пользователя
-    
+def get_user(id: str) -> ResponseSchema:
+    """Вернуть пользователя
+
         Входные параметры:
         :params data: Данные пользователя
 
         Исходящие параметры:
-        :params output_data: Словарь с результатами
+        :params data: Словарь с результатами
     """
-    user = User.get_by_username(data['username'])
-    if user is None:
-        raise ValueError('Incorrect username')
+    with get_session() as session:
+        roles_state = session.query(User).filter_by(id=id).first()
 
-    if not bcrypt.checkpw(data['password'].encode('utf-8'), user.hash_password.encode('utf-8')):
-        raise ValueError('Incorrect password')
+        data = UserSecureSchema.from_orm(roles_state).dict()
 
-    token = encode_jwt_token(user.id)
-    output_data = {
-        'success': True,
-        'message': "You're logged in successfuly",
-        'user': {
-            "id": user.id,
-            "username": user.username,
-            "created_on": user.created_on,
-            "token": token
-        }
-    }
-    print(output_data)
-    return output_data
+        return ResponseSchema(
+            data=data,
+            success=True
+        )
+
+
+def update_user(user_data) -> ResponseSchema:
+    """
+        Изменить пользователя
+        Входные параметры:
+        :params user: Данные пользователя
+
+        Исходящие данные:
+        Словарь с результатами обновления пользователя
+    """
+
+    user_state = User().fill(**user_data.dict())
+
+    with get_session() as session:
+        session.merge(user_state)
+        session.commit()
+
+        return ResponseSchema(
+            data=UserSecureSchema.from_orm(user_state),
+            success=True
+        )
+
+
+def delete_user(id: str) -> ResponseSchema:
+    """
+        Удалить пользователя
+        Входные параметры:
+        :params user: Данные пользователя
+
+        Исходящие данные:
+        Словарь с результатами удаления пользователя
+    """
+
+    with get_session() as session:
+        user_state = session.query(User).filter_by(id=id).first()
+
+        if not user_state:
+            ...
+
+        session.delete(user_state)
+        session.commit()
+
+        return ResponseSchema(
+            data=UserSecureSchema.from_orm(user_state),
+            success=True
+        )
+
+
+def login(user) -> ResponseSchema:
+    """
+        Авторизировать пользователя
+
+        Входные параметры:
+        :params user: Данные пользователя
+
+        Исходящие параметры:
+        Словарь с результатами авторизации
+    """
+    user_state = User.get_by_username(user.email)
+    if user_state is None:
+        raise ValueError('Неверная логин')
+
+    if not bcrypt.checkpw(user.hash_password, user_state.hash_password):
+        raise ValueError('Неверный пароль')
+
+    token = encode_jwt_token(user_state.id)
+
+    return ResponseSchema(
+        data=UserSecureSchema.from_orm(user_state),
+        message="Авторизация прошла успешно",
+        success=True
+    )

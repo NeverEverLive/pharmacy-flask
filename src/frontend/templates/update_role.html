@@ -1,0 +1,17 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4 mb-4">Update {{role.name}} role</h1>
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+        onclick="window.location.href='/edit_role'">Back</button>
+        
+  <form method="POST" action="/submit_role", enctype="multipart/form-data">
+    <label for="exampleRoleId">Role id</label>
+    <input type="text" name ="roleId" class="form-control mb-3 w-50" id="exampleRoleId" value="{{role.id}}" readonly>
+
+    <label for="exampleInputTitle">Role name</label>
+    <input type="text" name ="inputName" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter first name" value="{{role.name}}">
+
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+  
+{% endblock %}

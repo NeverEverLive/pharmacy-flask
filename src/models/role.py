@@ -1,12 +1,14 @@
 import datetime
 import uuid
+import logging
 
-from sqlalchemy import Column, PrimaryKeyConstraint, func
+from sqlalchemy import Column, PrimaryKeyConstraint, func, event, DDL
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import String, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 
 from src.models.base_model import BaseModel
+from src.schemas.role import RoleSchema
 
 
 class Role(BaseModel):
@@ -22,3 +24,22 @@ class Role(BaseModel):
     __table_args__ = (
         PrimaryKeyConstraint(id),
     )
+
+#
+# def create_admin_role():
+#     """DDL при создании таблицы добавляет роль admin"""
+#     admin_user = {
+#         "name": "admin_role",
+#     }
+#
+#     serializing_data = RoleSchema.parse_obj(admin_user)
+#     return DDL(f"""INSERT INTO "role"(id, name)
+#                 VALUES
+#                 ('{serializing_data.id}', '{serializing_data.name}')
+#                 ON CONFLICT DO NOTHING""")
+#
+#
+# event.listen(
+#     Role.__table__, 'after_create',
+#     create_admin_role()
+# )

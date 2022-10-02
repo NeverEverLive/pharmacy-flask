@@ -1,4 +1,5 @@
 import uuid
+from typing import List
 
 from pydantic import BaseModel, validator, Field
 
@@ -17,3 +18,11 @@ class RoleSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class RolesSchema(BaseModel):
+    __root__: List[RoleSchema] = Field(alias="data")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

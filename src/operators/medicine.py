@@ -66,7 +66,7 @@ def get_medicine(id: str) -> ResponseSchema:
         )
 
 
-def update_medicine(medicine: Medicine, substances: List[Substance]):
+def update_medicine(medicine: Medicine, substances: List[Substance]) -> ResponseSchema:
     with get_session() as session:
         medicine_state = session.query(Medicine).filter_by(id=medicine.id).first()
 
@@ -106,6 +106,12 @@ def update_medicine(medicine: Medicine, substances: List[Substance]):
         
         session.commit()
 
+        return ResponseSchema(
+            data=MedicineSchema.from_orm(medicine_state),
+            message="Medicine updated",
+            success=True
+        )
+
 
 def delete_medicine(id: str) -> ResponseSchema:
     with get_session() as session:
@@ -116,6 +122,19 @@ def delete_medicine(id: str) -> ResponseSchema:
                 success=False,
                 message="Same medicine doesn't exist"
             )
+
+        relations = get_relation_by_medicine_id(medicine_state.id).data
+        for relation in relations:
+            logging.warning(relation)
+            logger_data = {
+                "id": uuid.uuid4(),
+                "table": "medicine_substance",
+                "action": "insert",
+                "object_info": MedicineSubstanceSchema.parse_obj(relation).dict()
+            }
+            logger_state = Logger().fill(**logger_data)
+            session.add(logger_state)
+            session.commit()
 
         session.delete(medicine_state)
         session.commit()
@@ -130,6 +149,7 @@ def delete_medicine(id: str) -> ResponseSchema:
         logger_state = Logger().fill(**logger_data)
         session.add(logger_state)
         session.commit()
+
 
         return ResponseSchema(
             data=MedicineSchema.from_orm(medicine_state),

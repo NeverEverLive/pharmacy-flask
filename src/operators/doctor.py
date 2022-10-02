@@ -58,3 +58,62 @@ def get_doctor(id: str) -> ResponseSchema:
             data=DoctorSchema.from_orm(doctor_state),
             success=True
         )
+
+
+def update_doctor(doctor: DoctorSchema) -> ResponseSchema:
+    with get_session() as session:
+        doctor_state = session.query(Doctor).filter_by(id=doctor.id).first()
+
+        logger_data = {
+            "id": uuid.uuid4(),
+            "table": "doctor",
+            "action": "update",
+            "object_info": DoctorSchema.from_orm(doctor_state).dict()
+        }
+
+        logger_state = Logger().fill(**logger_data)
+        session.add(logger_state)
+        session.commit()
+
+        doctor_state.first_name = doctor.first_name
+        doctor_state.last_name = doctor.last_name
+        doctor_state.hospital = doctor.hospital
+
+        session.commit()
+
+        return ResponseSchema(
+            data=DoctorSchema.from_orm(doctor_state),
+            message="Doctor updated",
+            success=True
+        )
+
+
+def delete_doctor(id: int) -> ResponseSchema:
+    with get_session() as session:
+        doctor_state = session.query(Doctor).filter_by(id=id).first()
+
+        if not doctor_state:
+            return ResponseSchema(
+                success=False,
+                message="Same doctor doesn't exist"
+            )
+
+        session.delete(doctor_state)
+        session.commit()
+
+        logger_data = {
+            "id": uuid.uuid4(),
+            "table": "doctor",
+            "action": "insert",
+            "object_info": DoctorSchema.from_orm(doctor_state).dict()
+        }
+
+        logger_state = Logger().fill(**logger_data)
+        session.add(logger_state)
+        session.commit()
+
+        return ResponseSchema(
+            data=DoctorSchema.from_orm(doctor_state),
+            message="Doctor deleted",
+            success=True
+        )

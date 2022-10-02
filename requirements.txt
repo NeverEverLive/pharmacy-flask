@@ -15,6 +15,7 @@ packaging==21.3
 psycopg2-binary==2.9.3
 pycparser==2.21
 pydantic==1.9.2
+pydantic[email]
 PyJWT==2.4.0
 pyparsing==3.0.9
 python-dotenv==0.20.0

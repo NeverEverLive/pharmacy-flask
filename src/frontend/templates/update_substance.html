@@ -1,0 +1,17 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4 mb-4">Update {{substance.title}} substance</h1>
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+        onclick="window.location.href='/edit_substance'">Back</button>
+        
+  <form method="POST" action="/submit_substance", enctype="multipart/form-data">
+    <label for="exampleSubstanceId">Substance id</label>
+    <input type="text" name ="substanceId" class="form-control mb-3 w-50" id="examplesubstanceId" value="{{substance.id}}" readonly>
+
+    <label for="exampleInputTitle">Substance name</label>
+    <input type="text" name ="inputTitle" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter title" value="{{substance.name}}">
+
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+  
+{% endblock %}

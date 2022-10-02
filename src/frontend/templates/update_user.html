@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4 mb-4">Update {{user.username}} role</h1>
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+        onclick="window.location.href='/edit_user'">Back</button>
+        
+  <form method="POST" action="/submit_user", enctype="multipart/form-data">
+    <label for="exampleRoleId">User id</label>
+    <input type="text" name ="userId" class="form-control mb-3 w-50" id="exampleRoleId" value="{{user.id}}" readonly>
+
+    <label for="exampleInputTitle">Username</label>
+    <input type="text" name ="inputUserName" class="form-control mb-3" id="exampleInputFirstName" value="{{user.username}}" required>
+
+    <label for="exampleInputTitle">Password</label>
+    <input type="text" name ="inputPassword" class="form-control mb-3" id="exampleInputFirstName" placeholder="Enter password" required>
+
+    <label for="exampleInputTitle">Role</label>
+    <br>
+    <select required class="form-select mb-3" name="selectRole" aria-label="Select role">
+        <option value="{{current_role.id}}" selected>{{ current_role.name }}</option>
+      {% for role in roles%}
+        {% if role.name != current_role.name %}
+        <option value="{{role.id}}">{{role.name}}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <br>
+
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+  
+{% endblock %}

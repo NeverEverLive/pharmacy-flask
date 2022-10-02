@@ -2,7 +2,7 @@
 {% block content %}
   <h1 class="mt-4">Admin panel</h1>
   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-    Create new medicine
+    Create new doctor
   </button>
 
   <button type="button" class="btn btn-primary" style="position:absolute; right: 450px;"
@@ -32,30 +32,26 @@
   <table class="table table-hover mt-4">
       <thead>
           <tr>
-            <th style="width: 100px" scope="col">id</th>
-            <th scope="col">Name</th>
-            <th style="width: 400px" scope="col">Description</th>
-            <th scope="col">Substances</th>
+            <th scope="col">id</th>
+            <th scope="col">First name</th>
+            <th scope="col">Last name</th>
+            <th scope="col">Hospital</th>
             <th scope="col">Update</th>
             <th scope="col">Delete</th>
           </tr>
       </thead>
       <tbody>
-        {% for row in data %}
+        {% for doctor in doctors %}
             <tr>
-              <th>{{row.medicine.id}}</th>
-              <td>{{row.medicine.name}}</td>
-              <td>{{row.medicine.description}}</td>
-              <td>
-                {% for substance in row.substances%}
-                  <li>{{substance.name}}</li>
-                {% endfor %}
+              <th>{{doctor.id}}</th>
+              <td>{{doctor.first_name}}</td>
+              <td>{{doctor.last_name}}</td>
+              <td>{{doctor.hospital}}</td>
+              <td style="width: 90px">
+                  <button type="button" class="btn btn-primary" onclick="location.href='/update_doctor/{{doctor.id}}'">Update</button>
               </td>
               <td style="width: 90px">
-                  <button type="button" class="btn btn-primary" onclick="location.href='/update_medicine/{{row.medicine.id}}'">Update</button>
-              </td>
-              <td style="width: 90px">
-                  <button type="button" class="btn btn-danger" onclick="location.href='/delete_medicine/{{row.medicine.id}}'">Delete</button>
+                  <button type="button" class="btn btn-danger" onclick="location.href='/delete_doctor/{{doctor.id}}'">Delete</button>
               </td>
             </tr>
         {% endfor %}
@@ -68,28 +64,20 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Create medicine</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Create doctor</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-          <form method="POST" action="/create_medicine_", enctype="multipart/form-data">
+          <form method="POST" action="/create_doctor", enctype="multipart/form-data">
 
-            <label for="exampleInputTitle">Medicine name</label>
-            <input type="text" name ="inputTitle" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter name" required>
+            <label for="exampleInputTitle">Doctor name</label>
+            <input type="text" name ="inputTitle" class="form-control mb-3" id="exampleInputFirstName" placeholder="Enter first and last name" required>
 
-            <label for="exampleInputDescription">Description</label>
-            <textarea name ="inputDescription" class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description"></textarea>
+            <label for="exampleInputTitle">Doctor hospital</label>
+            <input type="text" name ="inputHospital" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter hospital" required>
 
-            <label for="exampleSelectSubstance">Select substances</label>
-            <br>
-            <select required multiple class="form-select mb-3" name="selectSubstance" aria-label="Select substance">
-              {% for substance in substances%}
-                <option value="{{substance.id}}">{{substance.name}}</option>
-              {% endfor %}
-            </select>
-            <br>
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
           </form>
       </div>
@@ -98,6 +86,6 @@
   </div>
 </div>
 
-    
+
 
 {% endblock %}

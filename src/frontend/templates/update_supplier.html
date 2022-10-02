@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4 mb-4">Update {{supplier.first_name}} {{supplier.last_name}} supplier</h1>
+  <button type="button" class="btn btn-primary" style="position:absolute; right: 325px;"
+        onclick="window.location.href='/edit_supplier'">Back</button>
+        
+  <form method="POST" action="/submit_supplier", enctype="multipart/form-data">
+    <label for="exampleSupplierId">Supplier id</label>
+    <input type="text" name ="supplierId" class="form-control mb-3 w-50" id="exampleSupplierId" value="{{supplier.id}}" readonly>
+
+    <label for="exampleInputTitle">Supplier first name</label>
+    <input type="text" name ="inputFirstName" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter first name" value="{{supplier.first_name}}">
+
+    <label for="exampleInputTitle">Supplier last name</label>
+    <input type="text" name ="inputLastName" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter last name" value="{{supplier.last_name}}">
+
+    <label for="exampleInputTitle">Supplier company</label>
+    <input type="text" name ="inputCompany" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter company" value="{{supplier.company}}">
+
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+  
+{% endblock %}

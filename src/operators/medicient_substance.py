@@ -50,6 +50,23 @@ def get_relation_by_medicine_id(id: str) -> ResponseSchema:
         )
 
 
+def get_relation_by_substance_id(id: str) -> ResponseSchema:
+    with get_session() as session:
+        relation_state = session.query(MedicineSubstance).filter_by(substance_id=id).all()
+
+        if not relation_state:
+            return ResponseSchema(
+                data=[],
+                success=False,
+                message="Same medicine doesn't exist"
+            )
+
+        return ResponseSchema(
+            data=RelationsSchema.from_orm(relation_state).dict(by_alias=True)["data"],
+            success=True
+        )
+
+
 def delete_relation(id: str) -> ResponseSchema:
     with get_session() as session:
         relation_state = session.query(MedicineSubstance).filter_by(id=id).first()

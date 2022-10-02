@@ -1,4 +1,5 @@
 import uuid
+from typing import List
 
 from pydantic import BaseModel, validator, Field
 
@@ -19,3 +20,11 @@ class SupplierSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class SuppliersSchema(BaseModel):
+    __root__: List[SupplierSchema] = Field(alias="data")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
