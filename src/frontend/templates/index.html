@@ -23,6 +23,11 @@
           </li>
           <li class="nav-item">
               <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button onclick="window.location.href='/cart'" style="position:absolute; right: 250px" type="button" class="btn btn-primary mx-4">Cart</button>
+              </div>
+          </li>
+          <li class="nav-item">
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                   <button onclick="window.location.href='/user/logout'" style="position:absolute; right: 150px" type="button" class="btn btn-danger mx-4">Log out</button>
               </div>
           </li>
@@ -73,15 +78,27 @@
               <ul class="list-group mt-4">
                   <li class="list-group-item">
                       <b>{{i.name}}</b>
-                      <span>{{ i.description|safe|truncate(25) }}<a href="/detail/{{i.id}}">more</a></span>
+                      <span>{{ i.description|safe|truncate(25) }}...<a href="/detail/{{i.id}}">more</a></span>
+                      <span>
+                          {% if i in cart %}
+                              <button type="button" class="btn btn-danger"
+                                      style="position:absolute; right: 10px; top: 5px;" onclick="window.location.href='/delete_cart_medicine/{{i.id}} 1'">
+                                  Delete from cart
+                              </button>
+                          {% else %}
+                              <button type="button" class="btn btn-primary"
+                                      style="position:absolute; right: 10px; top: 5px;" onclick="window.location.href='/add_cart_medicine/{{i.id}} 1'">
+                                  Add to cart
+                              </button>
+                          {% endif %}
+                      </span>
                   </li>
-              </ul>  
+              </ul>
             {% endfor %}
           {% else %}
-          <h6 class="ml-3">No entries yet...</h6>
+            <h6 class="ml-3">No entries yet...</h6>
           {% endif %}
       {% endblock %}
-
   </div>
 
 <!-- Modal -->

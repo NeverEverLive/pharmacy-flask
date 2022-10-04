@@ -1,0 +1,36 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1 class="mt-4">Cart</h1>
+
+  {% if success %}
+      <p class="mt-4" style="color:green">Success purchase</p>
+  {% endif %}
+
+  <table class="table table-hover mt-4">
+      <thead>
+          <tr>
+            <th scope="col">Medicine</th>
+            <th scope="col">Description</th>
+            <th scope="col">Price</th>
+            <th scope="col">Delete</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for medicine in medicines %}
+            <tr>
+              <td>{{medicine.name}}</td>
+              <td>{{medicine.description}}</td>
+              <td>{{medicine.price}}</td>
+              <td style="width: 90px">
+                  <button type="button" class="btn btn-danger" onclick="location.href='/delete_cart_medicine/{{medicine.id}}'">Delete</button>
+              </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+      <button type="button" class="btn btn-primary"
+          onclick="window.location.href='/create_order'">
+      Purchase
+      </button>
+  </table>
+
+{% endblock %}

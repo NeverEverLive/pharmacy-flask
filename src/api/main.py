@@ -21,12 +21,12 @@ from src.schemas.substance import SubstanceSchema
 from src.schemas.doctor import DoctorSchema
 from src.schemas.supplier import SupplierSchema
 from src.schemas.role import RoleSchema
-from src.models.user import CreateUpdateUserSchema
-from src.schemas.user import UserSecureSchema, UsersSecureSchema, UserSchema
+from src.schemas.user import UserSchema
 
 
 main = Blueprint("main", __name__)
 current_user = User.all()[0]
+cart = []
 
 
 @main.route('/')
@@ -42,6 +42,7 @@ def home(authorization_message=None):
         substances = []
 
     logging.warning(current_user)
+    logging.warning(cart)
 
     return render_template(
         "index.html",
@@ -49,8 +50,19 @@ def home(authorization_message=None):
         current_user=current_user,
         authorization_message=authorization_message,
         queryset=data,
-        substances=substances
+        substances=substances,
+        cart=cart
     )
+
+
+@main.route('/cart')
+def cart_endpoint(success=None):
+    return render_template(
+        "cart.html",
+        medicines=cart,
+        current_user=current_user
+    )
+
 
 
 @main.route('/detail/<string:id>')
@@ -702,3 +714,28 @@ def delete_user_endpoint(id):
     return user_edit_page(
         success_delete=True,
     )
+
+
+@main.get("/add_cart_medicine/<string:id>")
+def add_medicine_to_cart(id: MedicineSchema):
+    logging.warning(1)
+    id, template = id.strip().split()
+    medicine = get_medicine(id).data
+    cart.append(medicine)
+    logging.warning(cart)
+    if template:
+        return home()
+    else:
+        return cart_endpoint()
+
+
+@main.get("/delete_cart_medicine/<string:id>")
+def delete_medicine_to_cart(id: MedicineSchema):
+    id, template = id.strip().split()
+    medicine = get_medicine(id).data
+    cart.remove(medicine)
+    logging.warning(cart)
+    if template:
+        return home()
+    else:
+        return cart_endpoint()
