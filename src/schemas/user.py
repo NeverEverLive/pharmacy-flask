@@ -1,6 +1,6 @@
 import uuid
 import bcrypt
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -9,7 +9,7 @@ from src.schemas.response import ResponseSchema
 
 class UserSchema(BaseModel):
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
-    role_id: uuid.UUID
+    role_id: Optional[uuid.UUID]
     username: str
     hash_password: str = Field(alias="password")
 
@@ -21,6 +21,17 @@ class UserSchema(BaseModel):
             return value
         else:
             raise ValueError("Пароль должен быть передан строкой.")
+
+    class Config:
+        orm_mode = True
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
+class LoginUserSchema(BaseModel):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    username: str
+    password: str = Field(alias="password")
 
     class Config:
         orm_mode = True

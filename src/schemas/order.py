@@ -1,11 +1,12 @@
 import uuid
+from typing import List
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 
 
 class OrderSchema(BaseModel):
-    id: uuid.UUID
-    recipe_id: uuid.UUID
+    id: uuid.UUID = Field(default=uuid.uuid4())
+    recipe_id: List[uuid.UUID]
     supplier_id: uuid.UUID
     check_id: uuid.UUID
     user_id: uuid.UUID
@@ -21,3 +22,11 @@ class OrderSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class OrdersSchema(BaseModel):
+    __root__: List[OrderSchema] = Field(alias="data")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

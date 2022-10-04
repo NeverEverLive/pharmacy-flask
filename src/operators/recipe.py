@@ -48,6 +48,24 @@ def get_recipes_by_user_id(id: str) -> ResponseSchema:
             success=True
         )
 
+
+def get_recipes_by_user_and_medicine_id(user_id: str, medicine_id: str) -> ResponseSchema:
+    with get_session() as session:
+        recipe_state = session.query(Recipe).filter_by(user_id=user_id, medicine_id=medicine_id).all()
+
+        if not recipe_state:
+            return ResponseSchema(
+                data=[],
+                success=False,
+                message="Same recipe doesn't exist"
+            )
+
+        return ResponseSchema(
+            data=RecipesSchema.from_orm(recipe_state).dict(by_alias=True)["data"],
+            success=True
+        )
+
+
 def get_recipe(id: str) -> ResponseSchema:
     with get_session() as session:
         recipe_state = session.query(Recipe).filter_by(id=id).all()

@@ -25,21 +25,33 @@ class Role(BaseModel):
         PrimaryKeyConstraint(id),
     )
 
-#
-# def create_admin_role():
-#     """DDL при создании таблицы добавляет роль admin"""
-#     admin_user = {
-#         "name": "admin_role",
-#     }
-#
-#     serializing_data = RoleSchema.parse_obj(admin_user)
-#     return DDL(f"""INSERT INTO "role"(id, name)
-#                 VALUES
-#                 ('{serializing_data.id}', '{serializing_data.name}')
-#                 ON CONFLICT DO NOTHING""")
-#
-#
-# event.listen(
-#     Role.__table__, 'after_create',
-#     create_admin_role()
-# )
+
+def create_admin_role():
+    """DDL при создании таблицы добавляет роль admin"""
+    admin_role = {
+        "name": "admin",
+    }
+
+    user_role = {
+        "name": "user",
+    }
+
+    doctor_role = {
+        "name": "doctor",
+    }
+
+    serializing_admin_data = RoleSchema.parse_obj(admin_role)
+    serializing_user_data = RoleSchema.parse_obj(user_role)
+    serializing_doctor_data = RoleSchema.parse_obj(doctor_role)
+    return DDL(f"""INSERT INTO "role"(id, name)
+                VALUES
+                ('{serializing_admin_data.id}', '{serializing_admin_data.name}'),
+                ('{serializing_doctor_data.id}', '{serializing_doctor_data.name}'),
+                ('{serializing_user_data.id}', '{serializing_user_data.name}')
+                ON CONFLICT DO NOTHING""")
+
+
+event.listen(
+    Role.__table__, 'after_create',
+    create_admin_role()
+)

@@ -1,16 +1,21 @@
+import datetime
 import uuid
-from base64 import b64encode
 import logging
 
 from flask import render_template, Blueprint, request
+from sqlalchemy import select, func
+
 from src.models.user import User
-from src.operators.order import get_orders_by_user_id
-from src.operators.check import get_check
+from src.models.order import Order
+from src.models.role import Role
+from src.models.base_model import get_session
+from src.operators.order import get_orders_by_user_id, create_order
+from src.operators.check import get_check, create_check
 from src.operators.role import get_role, get_all_roles, create_role, update_role, delete_role
-from src.operators.user import get_user, get_all_users, create_user, update_user, delete_user
+from src.operators.user import get_user, get_all_users, create_user, update_user, delete_user, login
 from src.operators.supplier import get_supplier, create_supplier, get_all_suppliers, update_supplier, delete_supplier
 from src.operators.doctor import get_all_doctors, get_doctor, create_doctor, update_doctor, delete_doctor
-from src.operators.recipe import create_recipe, get_recipe, get_recipes_by_user_id
+from src.operators.recipe import create_recipe, get_recipe, get_recipes_by_user_id, get_recipes_by_user_and_medicine_id
 from src.operators.medicine import create_medicine, delete_medicine, get_all_medicines, get_medicine, update_medicine
 from src.operators.medicient_substance import create_medicine_substance, get_relation_by_medicine_id
 from src.operators.substance import get_all_substances, get_substance, create_substance, update_substance, delete_substance
@@ -21,7 +26,9 @@ from src.schemas.substance import SubstanceSchema
 from src.schemas.doctor import DoctorSchema
 from src.schemas.supplier import SupplierSchema
 from src.schemas.role import RoleSchema
-from src.schemas.user import UserSchema
+from src.schemas.user import UserSchema, LoginUserSchema
+from src.schemas.check import CheckSchema
+from src.schemas.order import OrderSchema
 
 
 main = Blueprint("main", __name__)
@@ -719,14 +726,15 @@ def delete_user_endpoint(id):
 @main.get("/add_cart_medicine/<string:id>")
 def add_medicine_to_cart(id: MedicineSchema):
     logging.warning(1)
-    id, template = id.strip().split()
+    # id, template = id.strip().split()
     medicine = get_medicine(id).data
     cart.append(medicine)
     logging.warning(cart)
-    if template:
-        return home()
-    else:
-        return cart_endpoint()
+    return home()
+    # if template:
+    #     return home()
+    # else:
+    #     return cart_endpoint()
 
 
 @main.get("/delete_cart_medicine/<string:id>")
@@ -734,8 +742,115 @@ def delete_medicine_to_cart(id: MedicineSchema):
     id, template = id.strip().split()
     medicine = get_medicine(id).data
     cart.remove(medicine)
-    logging.warning(cart)
-    if template:
+    logging.warning(template)
+    logging.warning(bool(template))
+    if int(template):
         return home()
     else:
         return cart_endpoint()
+
+
+@main.get("create_order")
+def create_order_endpoint():
+    recipe_ids = []
+    total_price = 0
+    for item in cart:
+        total_price += item.price
+        recipe = get_recipes_by_user_and_medicine_id(current_user.id, item.id)
+        recipe_ids.append(recipe)
+
+    check = CheckSchema(
+        date=datetime.date.today(),
+        total_price=total_price
+    )
+    check = create_check(check).data
+
+    with get_session() as session:
+        order_count = session.execute(select(
+            func.count()
+        ).select_from(
+            Order
+        )).scalar()
+
+    order = OrderSchema(
+        recipe_id=recipe_ids,
+        supplier_id=supplier_id,
+        check_id=check.id,
+        user_id=current_user.id,
+        name=f"Order number {order_count}"
+    )
+    create_order(order)
+
+
+@main.get("/login")
+def get_login_request_edpoint(error_message=None):
+    return render_template(
+        "login.html",
+        current_user=current_user,
+        error_message=error_message
+    )
+
+
+@main.post("/user/login")
+def login_user_edpoint():
+    request_form = request.form
+
+    data = {
+        "username": request_form["inputUsername"],
+        "password": request_form["inputPassword"]
+    }
+
+    global current_user
+    try:
+        current_user = login(LoginUserSchema.parse_obj(data)).data
+    except ValueError as error:
+        return get_login_request_edpoint(str(error))
+
+    logging.warning(current_user)
+
+    return home(authorization_message="You've successfully logged in")
+
+
+@main.get("/user/logout")
+def logout_user_edpoint():
+    global current_user
+
+    current_user = None
+
+    return home(authorization_message="You successfully logged out")
+
+
+@main.get("/register")
+def get_signin_request_edpoint():
+    logging.warning("1")
+
+    return render_template(
+        "register.html",
+        current_user=current_user,
+    )
+
+
+@main.post("/user/register")
+def register_user_edpoint():
+    request_form = request.form
+
+    with get_session() as session:
+        user_role = session.execute(select(
+            Role.id
+        ).where(
+            Role.name == "user"
+        )).scalar()
+
+    data = {
+        "username": request_form["inputUsername"],
+        "password": request_form["inputPassword"],
+        "role_id": user_role
+    }
+
+    global current_user
+
+    current_user = create_user(UserSchema.parse_obj(data)).data
+
+    logging.warning(current_user)
+
+    return home(authorization_message="Your account seccessfuly created")

@@ -73,6 +73,7 @@ class SaveUserSchema(BaseSchema):
     class Config:
         orm_mode = True
 
+
 # def create_admin():
 #     """DDL при создании таблицы добавляет пользователя admin"""
 #     admin_user = {
@@ -80,16 +81,18 @@ class SaveUserSchema(BaseSchema):
 #         "username": "admin",
 #         "password": "123"
 #     }
-    
-#     # with get_session() as session:
-#     #     role_id = session.query(Role).first()
-    
+#
+#     with get_session() as session:
+#         role_id = session.query(Role).first()
+#
+#     admin_user["role_id"] = role_id
 #     serializing_data = UserSchema.parse_obj(admin_user)
-#     return DDL(f"""INSERT INTO "user"(id, username, hash_password)
+#     return DDL(f"""INSERT INTO "user"(id, username, hash_password, role_id)
 #                 VALUES
-#                 ('{serializing_data.id}', '{serializing_data.username}', '{serializing_data.hash_password}')
+#                 ('{serializing_data.id}', '{serializing_data.username}', '{serializing_data.hash_password}', '{serializing_data.role_id}')
 #                 ON CONFLICT DO NOTHING""")
-
+#
+#
 # event.listen(
 #     User.__table__, 'after_create',
 #     create_admin()

@@ -130,11 +130,14 @@ def login(user) -> ResponseSchema:
         Исходящие параметры:
         Словарь с результатами авторизации
     """
-    user_state = User.get_by_username(user.email)
+    user_state = User.get_by_username(user.username)
     if user_state is None:
         raise ValueError('Неверная логин')
 
-    if not bcrypt.checkpw(user.hash_password, user_state.hash_password):
+    logging.warning(user_state.hash_password)
+    logging.warning(user.password)
+
+    if not bcrypt.checkpw(user.password.encode('utf-8'), user_state.hash_password.encode("utf-8")):
         raise ValueError('Неверный пароль')
 
     token = encode_jwt_token(user_state.id)

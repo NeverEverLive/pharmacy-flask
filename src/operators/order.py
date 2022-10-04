@@ -1,6 +1,6 @@
 import uuid
 
-from src.schemas.order import OrderSchema
+from src.schemas.order import OrderSchema, OrdersSchema
 from src.schemas.response import ResponseSchema
 from src.models.order import Order
 from src.models.base_model import get_session
@@ -31,6 +31,7 @@ def create_order(order: OrderSchema) -> ResponseSchema:
             success=True
         )
 
+
 def get_orders_by_user_id(id: str) -> ResponseSchema:
     with get_session() as session:
         order_state = session.query(Order).filter_by(user_id=id).all()
@@ -43,6 +44,6 @@ def get_orders_by_user_id(id: str) -> ResponseSchema:
             )
 
         return ResponseSchema(
-            data=OrderSchema.from_orm(order_state).dict(by_alias=True)["data"],
+            data=OrdersSchema.from_orm(order_state).dict(by_alias=True)["data"],
             success=True
         )
