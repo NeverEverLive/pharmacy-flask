@@ -10,7 +10,6 @@ from src.models.substance import Substance
 from src.models.base_model import get_session
 from src.models.logger import Logger
 from src.operators.medicient_substance import create_medicine_substance, delete_relation, get_relation_by_medicine_id
-from src.operators.substance import get_substance
 
 
 def create_medicine(medicine: MedicineSchema) -> ResponseSchema:
@@ -149,7 +148,6 @@ def delete_medicine(id: str) -> ResponseSchema:
         logger_state = Logger().fill(**logger_data)
         session.add(logger_state)
         session.commit()
-
 
         return ResponseSchema(
             data=MedicineSchema.from_orm(medicine_state),

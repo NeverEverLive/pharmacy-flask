@@ -2,6 +2,15 @@
 
 {% block content %}
 
+{% if success_backroll %}
+    <div class="alert alert-success mt-2 fade show" style="position:absolute; right: 60px" role="alert">
+      Success backroll
+      <button type="button" class="close ml-1" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+{% endif %}
+
 <h3 class="mt-4 mb-4">What are you want to do?</h3>
 <ul>
     <li>

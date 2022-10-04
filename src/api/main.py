@@ -11,6 +11,7 @@ from src.models.role import Role
 from src.models.base_model import get_session
 from src.operators.order import get_orders_by_user_id, create_order
 from src.operators.check import get_check, create_check
+from src.operators.logger import apply
 from src.operators.role import get_role, get_all_roles, create_role, update_role, delete_role
 from src.operators.user import get_user, get_all_users, create_user, update_user, delete_user, login
 from src.operators.supplier import get_supplier, create_supplier, get_all_suppliers, update_supplier, delete_supplier
@@ -90,12 +91,13 @@ def detail(id):
 
 
 @main.route("/edit")
-def edit_page():
+def edit_page(success_backroll=None):
     logging.warning(request.path)
     return render_template(
         "edit.html",
         current_user=current_user,
         url=request.path,
+        success_backroll=success_backroll,
     )
 
 
@@ -221,7 +223,6 @@ def medicine_edit_page(
         substances=substances,
         success=success,
         success_update=success_update,
-        success_backroll=success_backroll,
         success_delete=success_delete,
     )
 
@@ -854,3 +855,16 @@ def register_user_edpoint():
     logging.warning(current_user)
 
     return home(authorization_message="Your account seccessfuly created")
+
+
+@main.post("/backroll")
+def backroll():
+    request_form = request.form
+
+    logging.warning(request_form)
+
+    limit = request_form["InputCount"]
+
+    apply(limit)
+
+    return edit_page(success_backroll=True)
