@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from src.schemas.check import CheckSchema
@@ -33,7 +34,7 @@ def create_check(check: CheckSchema) -> ResponseSchema:
 
 def get_check(id: str) -> ResponseSchema:
     with get_session() as session:
-        check_state = session.query(Check).filter_by(id=id).all()
+        check_state = session.query(Check).filter_by(id=id).first()
 
         if not check_state:
             return ResponseSchema(
@@ -43,6 +44,6 @@ def get_check(id: str) -> ResponseSchema:
             )
 
         return ResponseSchema(
-            data=CheckSchema.from_orm(check_state).dict(by_alias=True)["data"],
+            data=CheckSchema.from_orm(check_state),
             success=True
         )

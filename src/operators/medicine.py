@@ -82,6 +82,7 @@ def update_medicine(medicine: Medicine, substances: List[Substance]) -> Response
 
         medicine_state.name = medicine.name
         medicine_state.description = medicine.description
+        medicine_state.price = medicine.price
 
         substances_relation_cross = []
         relations = get_relation_by_medicine_id(medicine.id).data

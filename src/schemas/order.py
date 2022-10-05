@@ -6,19 +6,28 @@ from pydantic import BaseModel, validator, Field
 
 class OrderSchema(BaseModel):
     id: uuid.UUID = Field(default=uuid.uuid4())
-    recipe_id: List[uuid.UUID]
+    recipes_id: List[uuid.UUID]
     supplier_id: uuid.UUID
     check_id: uuid.UUID
     user_id: uuid.UUID
     name: str
 
-    @validator("id", "recipe_id", "supplier_id", "check_id", "user_id")
+    @validator("recipes_id")
+    def list_uuid_to_str(cls, values: List[uuid.UUID]):
+        str_id = []
+        if isinstance(values, list):
+            for value in values:
+                str_id.append(str(value))
+        return str_id
+
+    @validator("id", "supplier_id", "check_id", "user_id")
     def uuid_to_str(cls, value: uuid.UUID):
         if isinstance(value, uuid.UUID):
-            return str(value)
+            return str(value)        
 
     def __hash__(self):
-        return hash((self.id, self.recipe_id, self.supplier_id, self.check_id, self.user_id))
+        self.recipes_id = frozenset(self.recipes_id)
+        return hash((self.id, self.recipes_id, self.supplier_id, self.check_id, self.user_id))
 
     class Config:
         orm_mode = True

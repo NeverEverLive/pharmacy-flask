@@ -13,7 +13,10 @@
 
     <label for="exampleInputDescription">Description</label>
     <textarea name ="inputDescription" class="form-control mb-3 w-50" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description">{{data.medicine.description}}</textarea>
-
+    
+    <label for="exampleInputTitle">Medicine Price</label>
+    <input type="text" name ="inputPrice" class="form-control mb-3 w-50" id="exampleInputTitle" placeholder="Enter price" value="{{data.medicine.price}}">
+    
     <label for="exampleSelectSubstance">Select substances</label>
     <br>
     <select required multiple class="form-select mb-3" name="selectSubstance" aria-label="Select substance">

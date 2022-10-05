@@ -34,6 +34,7 @@ from src.schemas.order import OrderSchema
 
 main = Blueprint("main", __name__)
 current_user = User.all()[0]
+current_user_role = get_role(current_user.role_id).data if current_user else None
 cart = []
 
 
@@ -56,6 +57,7 @@ def home(authorization_message=None):
         "index.html",
         request=request,
         current_user=current_user,
+        current_user_role=current_user_role,
         authorization_message=authorization_message,
         queryset=data,
         substances=substances,
@@ -65,12 +67,17 @@ def home(authorization_message=None):
 
 @main.route('/cart')
 def cart_endpoint(success=None):
+    try:
+        suppliers = get_all_suppliers().data
+    except:
+        suppliers = []
     return render_template(
         "cart.html",
         medicines=cart,
-        current_user=current_user
+        suppliers=suppliers,
+        current_user=current_user,
+        current_user_role=current_user_role,
     )
-
 
 
 @main.route('/detail/<string:id>')
@@ -85,6 +92,7 @@ def detail(id):
     return render_template(
         "detail.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         medicine=medicine,
         substances=substances
     )
@@ -96,6 +104,7 @@ def edit_page(success_backroll=None):
     return render_template(
         "edit.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         url=request.path,
         success_backroll=success_backroll,
     )
@@ -130,6 +139,7 @@ def recipes_endpoint(success_uploaded=False):
     return render_template(
         "recipes.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         url=request.path,
         data=data,
         doctors=doctors,
@@ -168,17 +178,20 @@ def orders_endpoint():
 
     data = []
     for order in orders:
-        recipe = get_recipe(order.recipe_id).data,
+        recipe = order["recipes_id"]
+        logging.warning(order)
+        # recipe = get_recipe(order.recipe_id).data,
         data.append({
             "order": order,
             "recipe": recipe,
-            "supplier": get_supplier(order.medicine_id).data,
-            "check": get_check(order.doctor_id).data
+            "supplier": get_supplier(order['supplier_id']).data,
+            "check": get_check(order["check_id"]).data
         })
 
     return render_template(
         "orders.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         data=data,
         url=request.path,
     )
@@ -220,6 +233,7 @@ def medicine_edit_page(
         "edit_medicines.html",
         data=data,
         current_user=current_user,
+        current_user_role=current_user_role,
         substances=substances,
         success=success,
         success_update=success_update,
@@ -237,10 +251,12 @@ def create_medicine_endpoint(edit=False):
     request_form = dict(request.form.lists())
     medicine_name = request_form["inputTitle"][0]
     medicine_description = request_form.get("inputDescription", "")[0]
+    medicine_price = int(request_form.get("inputPrice", 0)[0])
     substance_ids = request_form["selectSubstance"]
 
     medicine = MedicineSchema(
         name=medicine_name,
+        price=medicine_price,
         description=medicine_description,
     )
 
@@ -285,6 +301,8 @@ def update_medicine_endpoint(id):
     return render_template(
         "update_medicines.html",
         substances=substances,
+        current_user=current_user,
+        current_user_role=current_user_role,
         data=data
     )
 
@@ -298,10 +316,12 @@ def submit_medicine_update():
 
     medicine_title = request_form["inputTitle"][0]
     medicine_description = request_form["inputDescription"][0]
+    medicine_price = int(request_form["inputPrice"][0])
     substances_ids = request_form["selectSubstance"]
 
     medicine.name = medicine_title
     medicine.description = medicine_description
+    medicine.price = medicine_price
 
     substances = []
     for substance_id in substances_ids:
@@ -338,6 +358,7 @@ def substance_edit_page(
     return render_template(
         "edit_substance.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         substances=substances,
         success=success,
         success_update=success_update,
@@ -365,6 +386,8 @@ def update_substance_endpoint(id):
     return render_template(
         "update_substance.html",
         substance=substance,
+        current_user=current_user,
+        current_user_role=current_user_role,
     )
 
 
@@ -409,6 +432,7 @@ def doctor_edit_page(
     return render_template(
         "edit_doctor.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         doctors=doctors,
         success=success,
         success_update=success_update,
@@ -441,6 +465,8 @@ def update_doctor_endpoint(id):
     return render_template(
         "update_doctor.html",
         doctor=doctor,
+        current_user=current_user,
+        current_user_role=current_user_role,
     )
 
 
@@ -489,6 +515,7 @@ def supplier_edit_page(
     return render_template(
         "edit_supplier.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         suppliers=suppliers,
         success=success,
         success_update=success_update,
@@ -500,13 +527,10 @@ def supplier_edit_page(
 @main.post("/create_supplier")
 def create_supplier_endpoint():
     request_form = request.form
-    supplier_first_name, supplier_last_name = request_form["inputTitle"].strip().split()
-    supplier_company = request_form["inputCompany"]
+    supplier_name = request_form["inputTitle"]
 
     supplier = SupplierSchema(
-        first_name=supplier_first_name,
-        last_name=supplier_last_name,
-        company=supplier_company,
+        name=supplier_name,
     )
 
     create_supplier(supplier)
@@ -521,6 +545,8 @@ def update_supplier_endpoint(id):
     return render_template(
         "update_supplier.html",
         supplier=supplier,
+        current_user=current_user,
+        current_user_role=current_user_role,
     )
 
 
@@ -529,14 +555,11 @@ def submit_supplier_update():
     request_form = request.form
 
     supplier_id = request_form["supplierId"]
-    supplier_first_name = request_form["inputFirstName"]
-    supplier_last_name = request_form["inputLastName"]
-    supplier_company = request_form["inputCompany"]
+    supplier_name = request_form["inputName"]
+    
     supplier = SupplierSchema(
         id=uuid.UUID(supplier_id),
-        first_name=supplier_first_name,
-        last_name=supplier_last_name,
-        company=supplier_company,
+        name=supplier_name,
     )
 
     update_supplier(supplier)
@@ -569,6 +592,7 @@ def role_edit_page(
     return render_template(
         "edit_role.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         roles=roles,
         success=success,
         success_update=success_update,
@@ -598,6 +622,8 @@ def update_role_endpoint(id):
     return render_template(
         "update_role.html",
         role=role,
+        current_user=current_user,
+        current_user_role=current_user_role,
     )
 
 
@@ -647,6 +673,7 @@ def user_edit_page(
     return render_template(
         "edit_user.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         users=users,
         roles=roles,
         success=success,
@@ -685,6 +712,8 @@ def update_user_endpoint(id):
     return render_template(
         "update_user.html",
         user=user,
+        current_user=current_user,
+        current_user_role=current_user_role,
         current_role=current_role,
         roles=roles
     )
@@ -751,14 +780,22 @@ def delete_medicine_to_cart(id: MedicineSchema):
         return cart_endpoint()
 
 
-@main.get("create_order")
+@main.post("/create_order")
 def create_order_endpoint():
+    request_form = request.form
+
+    global cart
+
+    supplier_id = request_form["selectSupplier"]
+    logging.warning(supplier_id)
     recipe_ids = []
     total_price = 0
     for item in cart:
         total_price += item.price
-        recipe = get_recipes_by_user_and_medicine_id(current_user.id, item.id)
-        recipe_ids.append(recipe)
+        recipes = get_recipes_by_user_and_medicine_id(current_user.id, item.id).data
+        for recipe in recipes:
+            logging.warning(uuid.UUID(recipe["id"]))
+            recipe_ids.append(uuid.UUID(recipe["id"]))
 
     check = CheckSchema(
         date=datetime.date.today(),
@@ -773,14 +810,27 @@ def create_order_endpoint():
             Order
         )).scalar()
 
+    logging.warning(2)
+    logging.warning(recipe_ids)
+
+    logging.warning(uuid.uuid4())
+
     order = OrderSchema(
-        recipe_id=recipe_ids,
+        id=uuid.uuid4(),
+        recipes_id=recipe_ids,
         supplier_id=supplier_id,
         check_id=check.id,
         user_id=current_user.id,
         name=f"Order number {order_count}"
     )
+
+    logging.warning(order)
+
     create_order(order)
+    
+    cart = []
+
+    return orders_endpoint()
 
 
 @main.get("/login")
@@ -788,6 +838,7 @@ def get_login_request_edpoint(error_message=None):
     return render_template(
         "login.html",
         current_user=current_user,
+        current_user_role=current_user_role,
         error_message=error_message
     )
 
@@ -802,12 +853,15 @@ def login_user_edpoint():
     }
 
     global current_user
+    global current_user_role
     try:
         current_user = login(LoginUserSchema.parse_obj(data)).data
+        current_user_role = get_role(current_user.role_id).data
     except ValueError as error:
         return get_login_request_edpoint(str(error))
 
     logging.warning(current_user)
+    logging.warning(current_user_role)
 
     return home(authorization_message="You've successfully logged in")
 
@@ -815,8 +869,10 @@ def login_user_edpoint():
 @main.get("/user/logout")
 def logout_user_edpoint():
     global current_user
+    global current_user_role
 
     current_user = None
+    current_user_role = None
 
     return home(authorization_message="You successfully logged out")
 
@@ -828,6 +884,7 @@ def get_signin_request_edpoint():
     return render_template(
         "register.html",
         current_user=current_user,
+        current_user_role=current_user_role,
     )
 
 
@@ -849,8 +906,10 @@ def register_user_edpoint():
     }
 
     global current_user
+    global current_user_role
 
     current_user = create_user(UserSchema.parse_obj(data)).data
+    current_user_role = get_role(current_user.role_id).data
 
     logging.warning(current_user)
 

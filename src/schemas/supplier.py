@@ -6,9 +6,7 @@ from pydantic import BaseModel, validator, Field
 
 class SupplierSchema(BaseModel):
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
-    first_name: str
-    last_name: str
-    company: str
+    name: str
 
     @validator("id")
     def uuid_to_str(cls, value: uuid.UUID):
@@ -16,7 +14,7 @@ class SupplierSchema(BaseModel):
             return str(value)
 
     def __hash__(self):
-        return hash((self.id, self.first_name, self.last_name, self.company))
+        return hash((self.id, self.name))
 
     class Config:
         orm_mode = True

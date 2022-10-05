@@ -15,7 +15,7 @@ class Medicine(BaseModel):
     id = Column(UUID(as_uuid=True), nullable=False, unique=True, default=uuid.uuid4())
     name = Column(String, unique=True, nullable=False)
     description = Column(String, nullable=True)
-    # price = Column(Integer, nullable=False)
+    price = Column(Integer, nullable=False)
     created_on = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=datetime.datetime.now)
     

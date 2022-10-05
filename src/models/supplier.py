@@ -14,9 +14,7 @@ class Supplier(BaseModel):
     __tablename__ = 'supplier'
 
     id = Column(UUID(as_uuid=True), nullable=False, unique=True, default=uuid.uuid4())
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    company = Column(String, nullable=True)
+    name = Column(String, nullable=False)
     created_on = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=datetime.datetime.now)
     

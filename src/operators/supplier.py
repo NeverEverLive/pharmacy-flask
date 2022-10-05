@@ -80,9 +80,7 @@ def update_supplier(supplier: SupplierSchema) -> ResponseSchema:
         session.add(logger_state)
         session.commit()
 
-        supplier_state.first_name = supplier.first_name
-        supplier_state.last_name = supplier.last_name
-        supplier_state.hospital = supplier.company
+        supplier_state.name = supplier.name
 
         session.commit()
 

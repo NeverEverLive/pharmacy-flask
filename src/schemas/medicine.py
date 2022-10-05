@@ -7,6 +7,7 @@ from pydantic import BaseModel, validator, Field
 class MedicineSchema(BaseModel):
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
     name: str
+    price: int
     description: str
 
     @validator("id")

@@ -22,7 +22,7 @@ class Recipe(BaseModel):
     
     doctor = relationship("Doctor", back_populates="recipe")
     medicine = relationship("Medicine", back_populates="recipe")
-    order = relationship("Order", back_populates="recipe", uselist=False)
+    # order = relationship("Order", back_populates="recipe", uselist=False)
 
     __table_args__ = (
         PrimaryKeyConstraint(id),

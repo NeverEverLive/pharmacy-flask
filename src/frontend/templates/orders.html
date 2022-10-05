@@ -12,21 +12,22 @@
             <th scope="col">Supplier</th>
             <th scope="col">Check</th>
             <th scope="col">Date</th>
-            <th scope="col">Recipe</th>
+            <th scope="col">Recipes</th>
           </tr>
       </thead>
       <tbody>
         {% for row in data %}
             <tr>
               <th>{{row.order.id}}</th>
-              <td>{{row.supplier.first_name}} {{row.supplier.last_name}}</td>
+              <td>{{row.supplier.name}}</td>
               <td>{{row.check.total_price}}</td>
               <td>{{row.check.date}}</td>
-              <td>{{row.recipe.id}}</td>
-              <td style="width: 90px">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                  Show recipe
-                </button>
+              <td>
+                {% for recipe in row.order.recipes_id %}
+                  <li>
+                    {{recipe}}
+                  </li>
+                {% endfor %}
               </td>
             </tr>
         {% endfor %}

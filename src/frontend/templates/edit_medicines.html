@@ -31,6 +31,7 @@
             <th style="width: 100px" scope="col">id</th>
             <th scope="col">Name</th>
             <th style="width: 400px" scope="col">Description</th>
+            <th scope="col">Price</th>
             <th scope="col">Substances</th>
             <th scope="col">Update</th>
             <th scope="col">Delete</th>
@@ -42,6 +43,7 @@
               <th>{{row.medicine.id}}</th>
               <td>{{row.medicine.name}}</td>
               <td>{{row.medicine.description}}</td>
+              <td>{{row.medicine.price}}</td>
               <td>
                 {% for substance in row.substances%}
                   <li>{{substance.name}}</li>
@@ -77,6 +79,9 @@
 
             <label for="exampleInputDescription">Description</label>
             <textarea name ="inputDescription" class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description"></textarea>
+
+            <label for="exampleInputDescription">Price</label>
+            <input type="text" name ="inputPrice" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter price" required>
 
             <label for="exampleSelectSubstance">Select substances</label>
             <br>

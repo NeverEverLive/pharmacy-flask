@@ -33,9 +33,7 @@
       <thead>
           <tr>
             <th scope="col">id</th>
-            <th scope="col">First name</th>
-            <th scope="col">Last name</th>
-            <th scope="col">Company</th>
+            <th scope="col">Name</th>
             <th scope="col">Update</th>
             <th scope="col">Delete</th>
           </tr>
@@ -44,9 +42,7 @@
         {% for supplier in suppliers %}
             <tr>
               <th>{{supplier.id}}</th>
-              <td>{{supplier.first_name}}</td>
-              <td>{{supplier.last_name}}</td>
-              <td>{{supplier.company}}</td>
+              <td>{{supplier.name}}</td>
               <td style="width: 90px">
                   <button type="button" class="btn btn-primary" onclick="location.href='/update_supplier/{{supplier.id}}'">Update</button>
               </td>
@@ -73,10 +69,7 @@
           <form method="POST" action="/create_supplier", enctype="multipart/form-data">
 
             <label for="exampleInputTitle">Supplier name</label>
-            <input type="text" name ="inputTitle" class="form-control mb-3" id="exampleInputFirstName" placeholder="Enter first and last name" required>
-
-            <label for="exampleInputTitle">Supplier company</label>
-            <input type="text" name ="inputCompany" class="form-control mb-3" id="exampleInputTitle" placeholder="Enter company" required>
+            <input type="text" name ="inputTitle" class="form-control mb-3" id="exampleInputFirstName" placeholder="Enter name" required>
 
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
           </form>
