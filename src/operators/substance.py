@@ -100,7 +100,10 @@ def delete_substance(id: str) -> ResponseSchema:
                 message="Same substance doesn't exist"
             )
 
-        relations = get_relation_by_substance_id(substance_state.id).data
+        try:
+            relations = get_relation_by_substance_id(substance_state.id).data
+        except:
+            relations = []
         for relation in relations:
             logging.warning(relation)
             logger_data = {
