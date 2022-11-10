@@ -1,6 +1,8 @@
 import logging
 import uuid
 
+from sqlalchemy import func, select, delete
+
 from src.operators.medicient_substance import get_relation_by_substance_id
 from src.schemas.supplier import SupplierSchema
 from src.schemas.substance import SubstanceSchema, SubstancesSchema
@@ -9,6 +11,8 @@ from src.schemas.response import ResponseSchema
 from src.models.substance import Substance
 from src.models.base_model import get_session
 from src.models.logger import Logger
+from src.models.medicine import Medicine
+from src.models.medicine_substance import MedicineSubstance
 
 
 def create_substance(substance: SubstanceSchema) -> ResponseSchema:
@@ -99,12 +103,13 @@ def delete_substance(id: str) -> ResponseSchema:
                 success=False,
                 message="Same substance doesn't exist"
             )
-
+        medicines = []
         try:
             relations = get_relation_by_substance_id(substance_state.id).data
         except:
             relations = []
         for relation in relations:
+            medicines.append(relation["medicine_id"])
             logging.warning(relation)
             logger_data = {
                 "id": uuid.uuid4(),
@@ -129,6 +134,20 @@ def delete_substance(id: str) -> ResponseSchema:
         logger_state = Logger().fill(**logger_data)
         session.add(logger_state)
         session.commit()
+
+        for medicine in medicines:
+            medicine_state = select(
+                func.count()
+            ).select_from(
+                MedicineSubstance
+            ).where(
+                Medicine.id == medicine
+            )
+            relation_count = session.execute(medicine_state).scalar()
+            logging.warning(relation_count)
+            if not relation_count:
+                session.execute(delete(Medicine).where(Medicine.id == medicine))
+            session.commit()
 
         return ResponseSchema(
             data=SubstanceSchema.from_orm(substance_state),
