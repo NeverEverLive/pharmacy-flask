@@ -8,11 +8,6 @@
   <button type="button" class="btn btn-primary" style="position:absolute; right: 425px;"
           onclick="window.location.href='/'">Back</button>
 
-  <form method="POST" action="/backroll", enctype="multipart/form-data">
-    <input type="text" name ="InputCount" class="form-control mb-15" style="position:absolute; width: 13%; top:135px; right: 120px;" id="InputCount" placeholder="Enter backroll rows">
-    <button type="submit" class="btn btn-primary" style="position:absolute; top:135px; right: 30px;">Backroll</button>
-  </form>
-
   {% if success_uploaded %}
       <p class="mt-4" style="color:green">Success uploaded</p>
   {% endif %}

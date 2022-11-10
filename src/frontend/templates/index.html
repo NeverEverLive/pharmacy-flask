@@ -26,13 +26,13 @@
             </li>
             <li class="nav-item">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button onclick="window.location.href='/cart'" style="position:absolute; right: 350px" type="button" class="btn btn-primary mx-4">Cart</button>
+                    <button onclick="window.location.href='/cart'" style="position:absolute; top: 10px; right: 350px" type="button" class="btn btn-primary mx-4">Cart</button>
                 </div>
             </li>
           {% endif %}
           <li class="nav-item">
               <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                  <button onclick="window.location.href='/user/logout'" style="position:absolute; right: 250px" type="button" class="btn btn-danger mx-4">Log out</button>
+                  <button onclick="window.location.href='/user/logout'" style="position:absolute; top: 10px; right: 250px" type="button" class="btn btn-danger mx-4">Log out</button>
               </div>
           </li>
           <li class="nav-item">
@@ -43,12 +43,12 @@
         {% else %}
           <li class="nav-item">
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button onclick="window.location.href='/login'" style="position:absolute; right: 150px;" type="button" class="btn btn-primary mx-4">Login</button>
+                <button onclick="window.location.href='/login'" style="position:absolute; top: 10px; right: 150px;" type="button" class="btn btn-primary mx-4">Login</button>
             </div>
           </li>
           <li class="nav-item">
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button onclick="window.location.href='/register'" style="position:absolute; right: 0px" type="button" class="btn btn-primary mx-4">Create account</button>
+                <button onclick="window.location.href='/register'" style="position:absolute; top: 10px; right: 0px" type="button" class="btn btn-primary mx-4">Create account</button>
             </div>
           </li>
         {% endif %}
@@ -85,19 +85,21 @@
                   <li class="list-group-item">
                       <b>{{i.name}}</b>
                       <span>{{ i.description|safe|truncate(25) }}...<a href="/detail/{{i.id}}">more</a></span>
-                      <span>
-                          {% if i in cart %}
-                              <button type="button" class="btn btn-danger"
-                                      style="position:absolute; right: 10px; top: 5px;" onclick="window.location.href='/delete_cart_medicine/{{i.id}} 1'">
-                                  Delete from cart
-                              </button>
-                          {% else %}
-                              <button type="button" class="btn btn-primary"
-                                      style="position:absolute; right: 10px; top: 5px;" onclick="window.location.href='/add_cart_medicine/{{i.id}}'">
-                                  Add to cart
-                              </button>
-                          {% endif %}
-                      </span>
+                      {% if current_user_role.name == "user" %}
+                        <span>
+                            {% if i in cart %}
+                                <button type="button" class="btn btn-danger"
+                                        style="position:absolute; right: 10px; top: 5px;" onclick="window.location.href='/delete_cart_medicine/{{i.id}} 1'">
+                                    Delete from cart
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-primary"
+                                        style="position:absolute; right: 10px; top: 5px;" onclick="window.location.href='/add_cart_medicine/{{i.id}}'">
+                                    Add to cart
+                                </button>
+                            {% endif %}
+                        </span>
+                      {% endif %}
                   </li>
               </ul>
             {% endfor %}
@@ -112,7 +114,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Create game</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Create medicine</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -125,6 +127,9 @@
 
             <label for="exampleInputDescription">Description</label>
             <textarea name ="inputDescription" class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Enter description"></textarea>
+
+            <label for="exampleInputPrice">Price</label>
+            <input name ="inputPrice" class="form-control mb-3" id="exampleFormControlTextarea1" rows="3" placeholder="Enter price"></textarea>
 
             <label for="exampleSelectSubstance">Select substances</label>
             <br>

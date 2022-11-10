@@ -1,6 +1,7 @@
 import datetime
 import uuid
 import logging
+import os
 
 from flask import render_template, Blueprint, request
 from sqlalchemy import select, func
@@ -85,6 +86,7 @@ def detail(id):
     medicine = get_medicine(id).data
     relations = get_relation_by_medicine_id(id).data
     substances = []
+    select_substances = get_all_substances().data
     for relation in relations:
         logging.warning(relation)
         substances.append(get_substance(relation["substance_id"]).data)
@@ -94,7 +96,8 @@ def detail(id):
         current_user=current_user,
         current_user_role=current_user_role,
         medicine=medicine,
-        substances=substances
+        substances=substances,
+        select_substances=select_substances
     )
 
 
@@ -312,6 +315,8 @@ def submit_medicine_update():
     request_form = dict(request.form.lists())
 
     medicine_id = request_form["MedicineId"][0]
+    response_type = request_form.get("type", [0])[0]
+    logging.warning(response_type)
     medicine = get_medicine(medicine_id).data
 
     medicine_title = request_form["inputTitle"][0]
@@ -329,14 +334,21 @@ def submit_medicine_update():
 
     update_medicine(medicine, substances)
 
+    if response_type:
+        return detail(medicine.id)
+
     return medicine_edit_page(
         success_update=True,
     )
 
 
-@main.get("/delete_medicine/<string:id>")
-def delete_medicine_endpoint(id):
+@main.get("/delete_medicine/<string:id>/<int:response_type>")
+def delete_medicine_endpoint(id, response_type):
     delete_medicine(id)
+
+    logging.warning(response_type)
+    if response_type:
+        return home()
 
     return medicine_edit_page(
         success_delete=True,
@@ -927,3 +939,14 @@ def backroll():
     apply(limit)
 
     return edit_page(success_backroll=True)
+
+@main.get("/dump")
+def dump():
+    os.system('pg_dump pharmacy_db > dump.sql')
+    return edit_page()
+
+
+@main.get("/load_dump")
+def load_dump():
+    os.system('psql pharmacy_db < dump.sql')
+    return edit_page()
